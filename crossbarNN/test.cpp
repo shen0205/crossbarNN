@@ -178,6 +178,8 @@ void test_twoLayer_NN(int epochs) {
             }
             layer2.setDelta(delta2);
             delta1 = layer2.getLastLayerDelta();
+            layer1.setDelta(delta1);
+
             layer2.calculateGrad(softmaxLayer);
             layer1.calculateGrad(reluLayer);
             layer2.updateG();
