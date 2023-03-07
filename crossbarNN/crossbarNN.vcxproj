@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="crossbar.cpp" />
     <ClCompile Include="test_crossbar.cpp" />
+    <ClCompile Include="test_crossbarModule.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

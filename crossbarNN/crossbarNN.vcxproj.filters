@@ -32,5 +32,8 @@
     <ClCompile Include="test_crossbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="test_crossbarModule.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
