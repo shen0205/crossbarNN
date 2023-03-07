@@ -5,12 +5,22 @@
 #include <cmath>
 #include <vector>
 
+// Activation Function
+
 class activateFunc {
 public:
 	std::vector<float> activateGrad;
 	virtual std::vector<float> func(const std::vector<float> &inputTensor) {
 		std::vector<float> outputTensor;
 		outputTensor.resize(inputTensor.size());
+		return outputTensor;
+	}
+};
+
+class noActivationF : public activateFunc{
+	std::vector<float> func(const std::vector<float>& inputTensor) {
+		std::vector<float> outputTensor = inputTensor;
+		activateGrad.resize(inputTensor.size(), 1);
 		return outputTensor;
 	}
 };
@@ -58,6 +68,26 @@ public:
 	}
 };
 
+class sigmoidF : public activateFunc {
+public:
+	std::vector<float> func(const std::vector<float>& inputTensor) {
+		activateGrad.resize(inputTensor.size(), 0);
+		std::vector<float> outputTensor;
+		outputTensor.resize(inputTensor.size(), 0);
+		for (int i = 0, len = inputTensor.size(); i < len; ++i) {
+			if (inputTensor[i] > 0) {	
+				outputTensor[i] = 1.0 / (1.0 + std::exp(-inputTensor[i]));
+			} else {
+				outputTensor[i] = std::exp(inputTensor[i]) / (1.0 + std::exp(inputTensor[i]));
+			}
+			activateGrad[i] = outputTensor[i] * (1 - outputTensor[i]);
+		}
+		return outputTensor;
+	}
+};
+
+// RRAM
+
 class rram {
 private:
 	float g; // conduction, Aij
@@ -84,24 +114,29 @@ public:
 	}
 };
 
+// ADC
+
 class adc {
 private:
 	int bitsNum;
 	float referenceVoltage;
 	float scaleDivision;
 public:
-	void init(int bitsNum, float referenceVoltage, float scaleDivision) {
+	void init(int bitsNum, float referenceVoltage) {
 		this->bitsNum = bitsNum;
 		this->referenceVoltage = referenceVoltage;
-		this->scaleDivision = scaleDivision;
+		this->scaleDivision = referenceVoltage / pow(2, bitsNum);
 	}
 
 	void A2D(float& analogCurrent) {
 		if (std::abs(analogCurrent) < referenceVoltage) {
 			analogCurrent = static_cast<float>(static_cast<int>(analogCurrent / this->scaleDivision)) * this->scaleDivision;
-		}
-		else {
-			analogCurrent = referenceVoltage;
+		} else {
+			if (analogCurrent > 0) {
+				analogCurrent = referenceVoltage;
+			} else {
+				analogCurrent = -referenceVoltage;
+			}
 		}
 	}
 
@@ -119,6 +154,8 @@ public:
 		}
 	}
 };
+
+// Crossbar
 
 class crossbar {
 private:

@@ -128,11 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="crossbar.h" />
+    <ClInclude Include="crossbarModule.h" />
     <ClInclude Include="readMnist.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crossbar.cpp" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="test_crossbar.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

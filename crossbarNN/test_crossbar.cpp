@@ -149,7 +149,9 @@ void test_twoLayer_NN(int epochs) {
 
     softmaxF softmaxLayer;
     reluF reluLayer;
-
+    sigmoidF sigmoidLayer;
+    adc ADC;
+    ADC.init(24, std::pow(2, 22));
     // train
     for (int i = 0; i < epochs; ++i) {
         std::cout << "epochs " << i + 1 << "/" << epochs;
@@ -161,14 +163,15 @@ void test_twoLayer_NN(int epochs) {
             for (int k = 0; k < 10; ++k) {
                 if (k == train_labels[j]) {
                     labelTensor[k] = 1;
-                }
-                else {
+                } else {
                     labelTensor[k] = 0;
                 }
             }
             std::vector<float> outputTensor = layer1.forward_calculate(inputTensor);
-            outputTensor = reluLayer.func(outputTensor);
+            ADC.A2D(outputTensor);
+            //outputTensor = sigmoidLayer.func(outputTensor);
             outputTensor = layer2.forward_calculate(outputTensor);
+            ADC.A2D(outputTensor);
             outputTensor = softmaxLayer.func(outputTensor);
             std::vector<float> delta1, delta2;
             delta2.resize(output);
@@ -181,7 +184,7 @@ void test_twoLayer_NN(int epochs) {
             layer1.setDelta(delta1);
 
             layer2.calculateGrad(softmaxLayer);
-            layer1.calculateGrad(reluLayer);
+            layer1.calculateGrad();
             layer2.updateG();
             layer1.updateG();
         }
@@ -201,14 +204,16 @@ void test_twoLayer_NN(int epochs) {
                 labelTensor[k] = 0;
             }
         }
-        std::vector<float> outputTensor = layer1.forward_calculate(inputTensor);
-        outputTensor = reluLayer.func(outputTensor);
-        outputTensor = layer2.forward_calculate(outputTensor);
-        outputTensor = softmaxLayer.func(outputTensor);
-        float maxNum = outputTensor[0];
+        std::vector<float> hiddenTensor = layer1.forward_calculate(inputTensor);
+        ADC.A2D(hiddenTensor);
+        //std::vector<float> hiddenTensor2 = sigmoidLayer.func(hiddenTensor);
+        std::vector<float> outputTensor = layer2.forward_calculate(hiddenTensor);
+        ADC.A2D(outputTensor);
+        std::vector<float> outputTensor2 = softmaxLayer.func(outputTensor);
+        float maxNum = outputTensor2[0];
         for (int k = 1; k < output; ++k) {
-            if (outputTensor[k] > maxNum) {
-                maxNum = outputTensor[k];
+            if (outputTensor2[k] > maxNum) {
+                maxNum = outputTensor2[k];
                 maxIndex = k;
             }
         }
@@ -216,9 +221,15 @@ void test_twoLayer_NN(int epochs) {
             ++right;
         }
         if (j % 1000 == 0) {
-            std::cout << j << std::endl << "output:";
+            std::cout << j << std::endl;
+            std::cout << "hidden:";
+            for (int k = 0; k < hidden; ++k) {
+                std::cout << hiddenTensor[k] << " ";
+            }
+            std::cout << "output2:";
+            std::cout << std::endl;
             for (int k = 0; k < output; ++k) {
-                std::cout << outputTensor[k] << " ";
+                std::cout << outputTensor2[k] << " ";
             }
             std::cout << std::endl;
             std::cout << "label:";
@@ -226,13 +237,33 @@ void test_twoLayer_NN(int epochs) {
                 std::cout << labelTensor[k] << " ";
             }
             std::cout << std::endl;
+            std::cout << "output1:";
+            for (int k = 0; k < output; ++k) {
+                std::cout << outputTensor[k] << " ";
+            }
+            std::cout << std::endl;
         }
     }
     std::cout << "accuracy = " << static_cast<float>(right) / static_cast<float>(total) << std::endl;
 }
 
+void test_adc() {
+    std::vector<float> analog = { 0.0000001, -0.0000002, 0.0000003, -0.0000004, 0.0000005, -0.0000006, 0.0000007, -0.0000008, 0.0000009, -1 };
+    for (auto& tmp : analog) {
+        std::cout << tmp << " ";
+    }
+    std::cout << std::endl;
+    adc ADC;
+    ADC.init(31, 1);
+    ADC.A2D(analog); 
+    for (auto& tmp : analog) {
+        std::cout << tmp << " ";
+    }
+}
+
 int main() {
     //test_oneLayer_NN(20);
-    test_twoLayer_NN(5);
+    test_twoLayer_NN(10);
+    //test_adc();
 	return 0;
 }

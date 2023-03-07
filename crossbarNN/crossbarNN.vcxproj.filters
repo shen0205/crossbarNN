@@ -21,12 +21,15 @@
     <ClInclude Include="readMnist.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="crossbarModule.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crossbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="test.cpp">
+    <ClCompile Include="test_crossbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
